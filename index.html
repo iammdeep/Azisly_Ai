@@ -1,0 +1,2173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AZISLY CRM — Azisly.ai Growth &amp; Sales Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .sidebar-scroll::-webkit-scrollbar { width: 5px; }
+    .sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.25); border-radius: 9999px; }
+    .fade-in { animation: fadeIn 0.16s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased">
+  <div id="app" class="min-h-screen flex flex-col lg:flex-row">
+    <!-- Mobile Backdrop -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-900/50 z-30 hidden lg:hidden"></div>
+
+    <!-- Dark Navy-Blue Sidebar -->
+    <aside id="sidebar" class="fixed lg:sticky top-0 left-0 z-40 h-screen w-64 bg-[#0f172a] text-slate-200 flex flex-col shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-in-out">
+      <div class="h-16 px-5 flex items-center justify-between border-b border-slate-800/80">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">A</div>
+          <div>
+            <div class="text-white font-bold tracking-tight text-base leading-tight">AZISLY CRM</div>
+            <div id="sidebar-company-sub" class="text-[11px] text-slate-400 leading-tight">Azisly.ai</div>
+          </div>
+        </div>
+        <button id="close-sidebar-btn" type="button" class="lg:hidden p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800" aria-label="Close navigation">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <nav id="sidebar-nav" class="flex-1 overflow-y-auto sidebar-scroll px-3 py-4 space-y-1"></nav>
+
+      <div class="p-4 border-t border-slate-800/80 text-xs text-slate-400">
+        <div class="flex items-center justify-between">
+          <span>Storage</span>
+          <span class="text-emerald-400 font-medium">Local Browser</span>
+        </div>
+        <div class="mt-1 text-[11px] text-slate-500">All changes auto-saved</div>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <div class="flex-1 flex flex-col min-w-0">
+      <!-- Top Header -->
+      <header class="h-16 bg-white border-b border-slate-200 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-20">
+        <div class="flex items-center gap-3 min-w-0">
+          <button id="open-sidebar-btn" type="button" class="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100" aria-label="Open navigation">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+          <div class="min-w-0">
+            <h1 id="page-title" class="text-lg sm:text-xl font-semibold text-slate-900 truncate">Dashboard</h1>
+            <p id="page-subtitle" class="text-xs text-slate-500 hidden sm:block truncate">Real-time overview of Azisly.ai sales, leads, and student engagement</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 sm:gap-3">
+          <button id="quick-add-lead-btn" type="button" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition">
+            <i data-lucide="user-plus" class="w-4 h-4 text-blue-600"></i>
+            <span>New Lead</span>
+          </button>
+          <button id="quick-add-sale-btn" type="button" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs sm:text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-sm transition">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Record Sale</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <main id="main-content" class="flex-1 p-4 sm:p-6 max-w-[1440px] w-full mx-auto fade-in"></main>
+    </div>
+  </div>
+
+  <!-- Reusable Modal -->
+  <div id="modal-overlay" class="fixed inset-0 bg-slate-900/50 z-50 hidden items-center justify-center p-4 overflow-y-auto">
+    <div id="modal-card" class="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+        <h2 id="modal-title" class="text-base font-semibold text-slate-900">Modal</h2>
+        <button id="modal-close-btn" type="button" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100" aria-label="Close modal">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="modal-body" class="p-6 overflow-y-auto flex-1"></div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div id="confirm-overlay" class="fixed inset-0 bg-slate-900/50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-md p-6">
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-full bg-red-50 text-red-600 flex items-center justify-center shrink-0">
+          <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+        </div>
+        <div class="flex-1">
+          <h3 id="confirm-title" class="text-base font-semibold text-slate-900">Confirm Action</h3>
+          <p id="confirm-message" class="mt-1 text-sm text-slate-600">Are you sure?</p>
+        </div>
+      </div>
+      <div class="mt-6 flex justify-end gap-2">
+        <button id="confirm-cancel-btn" type="button" class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50">Cancel</button>
+        <button id="confirm-ok-btn" type="button" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      const STORAGE_KEY = 'azisly_crm_data_v1';
+
+      const NAV_ITEMS = [
+        { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard', subtitle: 'Real-time overview of Azisly.ai sales, leads, and tasks' },
+        { id: 'customers', label: 'Customers', icon: 'users', subtitle: 'Manage enrolled customers, purchases, and notes' },
+        { id: 'leads', label: 'Leads', icon: 'target', subtitle: 'Track enquiries, assign owners, and convert leads' },
+        { id: 'products', label: 'Courses & Products', icon: 'book-open', subtitle: 'Manage AI products, courses, pricing, and units sold' },
+        { id: 'tasks', label: 'To-do / Follow-ups', icon: 'check-square', subtitle: 'Track overdue, today’s, and upcoming follow-up tasks' },
+        { id: 'calendar', label: 'Calendar', icon: 'calendar', subtitle: 'Scheduled follow-ups, demos, meetings, and payment reminders' },
+        { id: 'sales', label: 'Sales & Payments', icon: 'credit-card', subtitle: 'Manual payment record management and sales history' },
+        { id: 'engagement', label: 'Career Engagement', icon: 'briefcase', subtitle: 'Track mock interviews, resumes, counselling, and job-readiness' },
+        { id: 'reports', label: 'Reports', icon: 'bar-chart-3', subtitle: 'Revenue, product, lead conversion, and employee analytics' },
+        { id: 'settings', label: 'Settings', icon: 'settings', subtitle: 'Configure company info, employees, and application preferences' }
+      ];
+
+      const LEAD_SOURCES = [
+        'Instagram', 'Facebook Ads', 'Website', 'WhatsApp', 'Manual Entry', 'LinkedIn', 'College Partnerships'
+      ];
+      const LEAD_STATUSES = ['New', 'Contacted', 'Interested', 'Follow-up', 'Converted', 'Lost'];
+      const PAYMENT_STATUSES = ['Paid', 'Pending', 'Partially Paid', 'Failed', 'Refunded'];
+      const PAYMENT_METHODS = ['UPI', 'Card', 'Bank Transfer', 'Cash', 'Other'];
+      const TASK_PRIORITIES = ['High', 'Medium', 'Low'];
+      const TASK_STATUSES = ['Pending', 'In Progress', 'Completed'];
+      const CALENDAR_TYPES = ['Follow-up', 'Customer Meeting', 'Demo Session', 'Payment Reminder'];
+
+      function getDefaultState() {
+        return {
+          settings: {
+            companyName: 'Azisly.ai',
+            currency: '₹',
+            employees: ['Aarav Sharma', 'Priya Nair', 'Rohan Verma', 'Sneha Patel'],
+            defaultLeadStatus: 'New'
+          },
+          products: [
+            { id: 'prod_1', name: 'MockMate', category: 'AI Software', price: 1999, description: 'AI mock interview platform with real-time feedback.', active: true },
+            { id: 'prod_2', name: 'ResumeArchitect', category: 'AI Software', price: 999, description: 'AI-powered ATS resume builder and optimizer.', active: true },
+            { id: 'prod_3', name: 'DomainPrep', category: 'Interview Prep', price: 2499, description: 'Domain-specific technical and behavioural interview prep.', active: true },
+            { id: 'prod_4', name: 'AI Corporate Analyst Programme', category: '3-Month Programme', price: 14999, description: 'Beginner-friendly three-month job-readiness programme.', active: true },
+            { id: 'prod_5', name: 'AI Career Development Programme', category: 'Course', price: 9999, description: 'Comprehensive AI career acceleration course.', active: true }
+          ],
+          customers: [],
+          leads: [],
+          tasks: [],
+          sales: [],
+          calendarEvents: [],
+          engagements: []
+        };
+      }
+
+      function loadState() {
+        try {
+          const raw = window.localStorage.getItem(STORAGE_KEY);
+          if (!raw) return getDefaultState();
+          const parsed = JSON.parse(raw);
+          const def = getDefaultState();
+          return {
+            settings: { ...def.settings, ...(parsed.settings || {}) },
+            products: Array.isArray(parsed.products) ? parsed.products : def.products,
+            customers: Array.isArray(parsed.customers) ? parsed.customers : [],
+            leads: Array.isArray(parsed.leads) ? parsed.leads : [],
+            tasks: Array.isArray(parsed.tasks) ? parsed.tasks : [],
+            sales: Array.isArray(parsed.sales) ? parsed.sales : [],
+            calendarEvents: Array.isArray(parsed.calendarEvents) ? parsed.calendarEvents : [],
+            engagements: Array.isArray(parsed.engagements) ? parsed.engagements : []
+          };
+        } catch (e) {
+          return getDefaultState();
+        }
+      }
+
+      function saveState() {
+        try {
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {
+          showToast('Could not save to local browser storage.', 'error');
+        }
+      }
+
+      let state = loadState();
+      let currentPage = 'dashboard';
+      let calendarCursor = new Date();
+      calendarCursor.setDate(1);
+      let activeCharts = [];
+
+      // Filter states
+      const filters = {
+        customers: { search: '', status: 'all', employee: 'all' },
+        leads: { search: '', status: 'all', source: 'all', employee: 'all' },
+        tasks: { search: '', status: 'all', priority: 'all' },
+        sales: { search: '', status: 'all' },
+        engagement: { search: '', readiness: 'all' }
+      };
+
+      // Helpers
+      function uid(prefix) {
+        return prefix + '_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
+      }
+
+      function todayISO() {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+      }
+
+      function esc(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function formatMoney(num) {
+        const val = Number(num) || 0;
+        const sym = state.settings.currency || '₹';
+        return sym + val.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+      }
+
+      function formatDate(iso) {
+        if (!iso) return '—';
+        const d = new Date(iso + (iso.length === 10 ? 'T00:00:00' : ''));
+        if (isNaN(d.getTime())) return esc(iso);
+        return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+      }
+
+      function badgeClass(status) {
+        const map = {
+          'Paid': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+          'Completed': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+          'Converted': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+          'Placed': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+          'Interview-Ready': 'bg-blue-50 text-blue-700 border-blue-200',
+          'Active': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+          'Interested': 'bg-blue-50 text-blue-700 border-blue-200',
+          'In Progress': 'bg-blue-50 text-blue-700 border-blue-200',
+          'New': 'bg-indigo-50 text-indigo-700 border-indigo-200',
+          'Contacted': 'bg-sky-50 text-sky-700 border-sky-200',
+          'Follow-up': 'bg-amber-50 text-amber-700 border-amber-200',
+          'Pending': 'bg-amber-50 text-amber-700 border-amber-200',
+          'Partially Paid': 'bg-orange-50 text-orange-700 border-orange-200',
+          'Medium': 'bg-amber-50 text-amber-700 border-amber-200',
+          'High': 'bg-red-50 text-red-700 border-red-200',
+          'Failed': 'bg-red-50 text-red-700 border-red-200',
+          'Lost': 'bg-red-50 text-red-700 border-red-200',
+          'Inactive': 'bg-slate-100 text-slate-600 border-slate-200',
+          'Low': 'bg-slate-100 text-slate-600 border-slate-200',
+          'Refunded': 'bg-purple-50 text-purple-700 border-purple-200'
+        };
+        return map[status] || 'bg-slate-100 text-slate-700 border-slate-200';
+      }
+
+      function showToast(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const el = document.createElement('div');
+        const colors = type === 'error'
+          ? 'bg-red-600 text-white'
+          : type === 'info'
+          ? 'bg-slate-800 text-white'
+          : 'bg-emerald-600 text-white';
+        el.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-lg shadow-lg text-sm font-medium ${colors} fade-in`;
+        el.innerHTML = `<i data-lucide="${type === 'error' ? 'alert-circle' : 'check-circle-2'}" class="w-4 h-4 shrink-0"></i><span>${esc(message)}</span>`;
+        container.appendChild(el);
+        if (window.lucide) lucide.createIcons({ nodes: [el] });
+        setTimeout(() => {
+          el.style.opacity = '0';
+          el.style.transition = 'opacity 0.2s';
+          setTimeout(() => el.remove(), 220);
+        }, 3200);
+      }
+
+      // Modal Helpers
+      function openModal(title, htmlContent, onMount) {
+        document.getElementById('modal-title').textContent = title;
+        const body = document.getElementById('modal-body');
+        body.innerHTML = htmlContent;
+        const overlay = document.getElementById('modal-overlay');
+        overlay.classList.remove('hidden');
+        overlay.classList.add('flex');
+        if (window.lucide) lucide.createIcons({ nodes: [body] });
+        if (typeof onMount === 'function') onMount(body);
+      }
+
+      function closeModal() {
+        const overlay = document.getElementById('modal-overlay');
+        overlay.classList.add('hidden');
+        overlay.classList.remove('flex');
+        document.getElementById('modal-body').innerHTML = '';
+      }
+
+      let confirmCallback = null;
+      function openConfirm(title, message, okLabel, onConfirm) {
+        document.getElementById('confirm-title').textContent = title;
+        document.getElementById('confirm-message').textContent = message;
+        document.getElementById('confirm-ok-btn').textContent = okLabel || 'Delete';
+        confirmCallback = onConfirm;
+        const overlay = document.getElementById('confirm-overlay');
+        overlay.classList.remove('hidden');
+        overlay.classList.add('flex');
+      }
+
+      function closeConfirm() {
+        const overlay = document.getElementById('confirm-overlay');
+        overlay.classList.add('hidden');
+        overlay.classList.remove('flex');
+        confirmCallback = null;
+      }
+
+      // Metrics Calculation (Always from real state)
+      function computeMetrics() {
+        const paidSales = state.sales.filter(s => s.status === 'Paid' || s.status === 'Partially Paid');
+        const totalRevenue = paidSales.reduce((acc, s) => acc + (Number(s.amount) || 0), 0);
+        const totalUnitsSold = state.sales.filter(s => s.status !== 'Failed' && s.status !== 'Refunded').length;
+        const totalCustomers = state.customers.length;
+        const activeLeads = state.leads.filter(l => l.status !== 'Converted' && l.status !== 'Lost').length;
+        const pendingSales = state.sales.filter(s => s.status === 'Pending' || s.status === 'Partially Paid');
+        const pendingPaymentsAmount = pendingSales.reduce((acc, s) => acc + (Number(s.amount) || 0), 0);
+        const today = todayISO();
+        const todaysTasks = state.tasks.filter(t => t.dueDate === today && t.status !== 'Completed');
+        const overdueTasks = state.tasks.filter(t => t.dueDate && t.dueDate < today && t.status !== 'Completed');
+
+        return {
+          totalRevenue,
+          totalUnitsSold,
+          totalCustomers,
+          activeLeads,
+          pendingPaymentsAmount,
+          pendingPaymentsCount: pendingSales.length,
+          todaysTasksCount: todaysTasks.length,
+          todaysTasks,
+          overdueTasks
+        };
+      }
+
+      function destroyCharts() {
+        activeCharts.forEach(c => { try { c.destroy(); } catch (e) {} });
+        activeCharts = [];
+      }
+
+      // Sidebar & Navigation
+      function renderSidebar() {
+        document.getElementById('sidebar-company-sub').textContent = state.settings.companyName || 'Azisly.ai';
+        const nav = document.getElementById('sidebar-nav');
+        const metrics = computeMetrics();
+        nav.innerHTML = NAV_ITEMS.map(item => {
+          const active = item.id === currentPage;
+          let badge = '';
+          if (item.id === 'tasks' && (metrics.todaysTasksCount + metrics.overdueTasks.length) > 0) {
+            badge = `<span class="ml-auto text-[11px] font-semibold px-2 py-0.5 rounded-full ${active ? 'bg-blue-500 text-white' : 'bg-slate-800 text-slate-300'}">${metrics.todaysTasksCount + metrics.overdueTasks.length}</span>`;
+          } else if (item.id === 'leads' && metrics.activeLeads > 0) {
+            badge = `<span class="ml-auto text-[11px] font-semibold px-2 py-0.5 rounded-full ${active ? 'bg-blue-500 text-white' : 'bg-slate-800 text-slate-300'}">${metrics.activeLeads}</span>`;
+          }
+          return `
+            <button type="button" data-nav="${item.id}" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${
+              active
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+            }">
+              <i data-lucide="${item.icon}" class="w-4 h-4 shrink-0"></i>
+              <span class="truncate">${esc(item.label)}</span>
+              ${badge}
+            </button>
+          `;
+        }).join('');
+
+        nav.querySelectorAll('[data-nav]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            navigateTo(btn.getAttribute('data-nav'));
+            closeMobileSidebar();
+          });
+        });
+        if (window.lucide) lucide.createIcons({ nodes: [nav] });
+      }
+
+      function navigateTo(pageId) {
+        currentPage = pageId;
+        const meta = NAV_ITEMS.find(n => n.id === pageId) || NAV_ITEMS[0];
+        document.getElementById('page-title').textContent = meta.label;
+        document.getElementById('page-subtitle').textContent = meta.subtitle;
+        renderSidebar();
+        renderCurrentPage();
+      }
+
+      function openMobileSidebar() {
+        document.getElementById('sidebar').classList.remove('-translate-x-full');
+        document.getElementById('sidebar-backdrop').classList.remove('hidden');
+      }
+      function closeMobileSidebar() {
+        document.getElementById('sidebar').classList.add('-translate-x-full');
+        document.getElementById('sidebar-backdrop').classList.add('hidden');
+      }
+
+      function emptyStateHTML(icon, title, desc, btnLabel, btnId) {
+        return `
+          <div class="text-center py-10 px-4">
+            <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
+              <i data-lucide="${icon}" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-sm font-semibold text-slate-800">${esc(title)}</h3>
+            <p class="mt-1 text-xs text-slate-500 max-w-sm mx-auto">${esc(desc)}</p>
+            ${btnLabel ? `<button id="${btnId}" type="button" class="mt-4 inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition"><i data-lucide="plus" class="w-3.5 h-3.5"></i>${esc(btnLabel)}</button>` : ''}
+          </div>
+        `;
+      }
+
+      // ========================
+      // 1. DASHBOARD
+      // ========================
+      function renderDashboard(container) {
+        const m = computeMetrics();
+        const kpis = [
+          { label: 'Total Revenue', value: formatMoney(m.totalRevenue), sub: 'From Paid & Partial sales', icon: 'indian-rupee', color: 'bg-blue-50 text-blue-600' },
+          { label: 'Total Units Sold', value: String(m.totalUnitsSold), sub: 'Active product & course orders', icon: 'shopping-bag', color: 'bg-indigo-50 text-indigo-600' },
+          { label: 'Total Customers', value: String(m.totalCustomers), sub: 'Registered & converted accounts', icon: 'users', color: 'bg-emerald-50 text-emerald-600' },
+          { label: 'Active Leads', value: String(m.activeLeads), sub: 'Open pipeline enquiries', icon: 'target', color: 'bg-sky-50 text-sky-600' },
+          { label: 'Pending Payments', value: formatMoney(m.pendingPaymentsAmount), sub: `${m.pendingPaymentsCount} pending record(s)`, icon: 'clock', color: 'bg-amber-50 text-amber-600' },
+          { label: "Today's Tasks", value: String(m.todaysTasksCount), sub: `${m.overdueTasks.length} overdue`, icon: 'check-circle', color: 'bg-purple-50 text-purple-600' }
+        ];
+
+        const recentCustomers = [...state.customers].slice(-5).reverse();
+        const recentSales = [...state.sales].slice(-5).reverse();
+
+        container.innerHTML = `
+          <div class="space-y-6">
+            <!-- 6 KPI Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+              ${kpis.map(k => `
+                <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex items-start justify-between">
+                  <div>
+                    <div class="text-xs font-medium text-slate-500 uppercase tracking-wider">${esc(k.label)}</div>
+                    <div class="mt-2 text-2xl font-bold text-slate-900">${esc(k.value)}</div>
+                    <div class="mt-1 text-xs text-slate-500">${esc(k.sub)}</div>
+                  </div>
+                  <div class="w-10 h-10 rounded-lg ${k.color} flex items-center justify-center shrink-0">
+                    <i data-lucide="${k.icon}" class="w-5 h-5"></i>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+
+            <!-- Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                  <div>
+                    <h2 class="text-sm font-semibold text-slate-900">Course &amp; Product Performance</h2>
+                    <p class="text-xs text-slate-500">Revenue by product from recorded sales</p>
+                  </div>
+                </div>
+                ${state.sales.length === 0
+                  ? emptyStateHTML('bar-chart-2', 'No product sales yet', 'Record your first sale to see course and product performance.', 'Record Sale', 'dash-empty-sale-1')
+                  : '<div class="relative h-72"><canvas id="chart-course-perf"></canvas></div>'
+                }
+              </div>
+
+              <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                  <div>
+                    <h2 class="text-sm font-semibold text-slate-900">Revenue Over Time</h2>
+                    <p class="text-xs text-slate-500">Monthly revenue trend from Paid &amp; Partial sales</p>
+                  </div>
+                </div>
+                ${state.sales.length === 0
+                  ? emptyStateHTML('trending-up', 'No revenue history yet', 'Revenue trends will appear automatically as payments are recorded.', 'Record Sale', 'dash-empty-sale-2')
+                  : '<div class="relative h-72"><canvas id="chart-rev-time"></canvas></div>'
+                }
+              </div>
+            </div>
+
+            <!-- Bottom Grid: Today's Tasks, Recent Customers, Recent Sales -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+                <div class="flex items-center justify-between mb-3">
+                  <h2 class="text-sm font-semibold text-slate-900">Today's Tasks</h2>
+                  <button type="button" data-goto="tasks" class="text-xs font-medium text-blue-600 hover:underline">View all</button>
+                </div>
+                ${m.todaysTasks.length === 0
+                  ? emptyStateHTML('check-square', 'No tasks due today', 'Add a follow-up task to stay on top of leads and customers.', 'Add Task', 'dash-empty-task')
+                  : `<div class="space-y-2.5">
+                      ${m.todaysTasks.slice(0, 5).map(t => `
+                        <div class="p-3 rounded-lg border border-slate-200 flex items-start justify-between gap-2">
+                          <div class="min-w-0">
+                            <div class="text-sm font-medium text-slate-800 truncate">${esc(t.title)}</div>
+                            <div class="text-xs text-slate-500 mt-0.5">${esc(t.relatedName || 'General')} • ${esc(t.assignedTo || 'Unassigned')}</div>
+                          </div>
+                          <span class="px-2 py-0.5 text-[11px] font-medium rounded-full border ${badgeClass(t.priority)}">${esc(t.priority)}</span>
+                        </div>
+                      `).join('')}
+                    </div>`
+                }
+              </div>
+
+              <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+                <div class="flex items-center justify-between mb-3">
+                  <h2 class="text-sm font-semibold text-slate-900">Recent Customers</h2>
+                  <button type="button" data-goto="customers" class="text-xs font-medium text-blue-600 hover:underline">View all</button>
+                </div>
+                ${recentCustomers.length === 0
+                  ? emptyStateHTML('users', 'No customers yet', 'Add a customer or convert a lead to see them here.', 'Add Customer', 'dash-empty-cust')
+                  : `<div class="divide-y divide-slate-100">
+                      ${recentCustomers.map(c => `
+                        <div class="py-2.5 flex items-center justify-between gap-2">
+                          <div class="min-w-0">
+                            <div class="text-sm font-medium text-slate-800 truncate">${esc(c.name)}</div>
+                            <div class="text-xs text-slate-500 truncate">${esc(c.interestedCourse || 'No course')} • ${esc(c.city || '—')}</div>
+                          </div>
+                          <span class="px-2 py-0.5 text-[11px] font-medium rounded-full border shrink-0 ${badgeClass(c.paymentStatus)}">${esc(c.paymentStatus)}</span>
+                        </div>
+                      `).join('')}
+                    </div>`
+                }
+              </div>
+
+              <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+                <div class="flex items-center justify-between mb-3">
+                  <h2 class="text-sm font-semibold text-slate-900">Recent Sales</h2>
+                  <button type="button" data-goto="sales" class="text-xs font-medium text-blue-600 hover:underline">View all</button>
+                </div>
+                ${recentSales.length === 0
+                  ? emptyStateHTML('credit-card', 'No sales recorded', 'Record a manual payment to track Azisly.ai revenue.', 'Record Sale', 'dash-empty-sale-3')
+                  : `<div class="divide-y divide-slate-100">
+                      ${recentSales.map(s => {
+                        const cust = state.customers.find(c => c.id === s.customerId);
+                        const prod = state.products.find(p => p.id === s.productId);
+                        return `
+                          <div class="py-2.5 flex items-center justify-between gap-2">
+                            <div class="min-w-0">
+                              <div class="text-sm font-medium text-slate-800 truncate">${esc(cust ? cust.name : 'Unknown')}</div>
+                              <div class="text-xs text-slate-500 truncate">${esc(prod ? prod.name : 'Product')} • ${formatDate(s.date)}</div>
+                            </div>
+                            <div class="text-right shrink-0">
+                              <div class="text-sm font-semibold text-slate-900">${formatMoney(s.amount)}</div>
+                              <span class="inline-block px-2 py-0.5 text-[10px] font-medium rounded-full border ${badgeClass(s.status)}">${esc(s.status)}</span>
+                            </div>
+                          </div>
+                        `;
+                      }).join('')}
+                    </div>`
+                }
+              </div>
+            </div>
+          </div>
+        `;
+
+        container.querySelectorAll('[data-goto]').forEach(btn => {
+          btn.addEventListener('click', () => navigateTo(btn.getAttribute('data-goto')));
+        });
+
+        ['dash-empty-sale-1', 'dash-empty-sale-2', 'dash-empty-sale-3'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.addEventListener('click', () => openSaleModal());
+        });
+        const emptyTaskBtn = document.getElementById('dash-empty-task');
+        if (emptyTaskBtn) emptyTaskBtn.addEventListener('click', () => openTaskModal());
+        const emptyCustBtn = document.getElementById('dash-empty-cust');
+        if (emptyCustBtn) emptyCustBtn.addEventListener('click', () => openCustomerModal());
+
+        if (state.sales.length > 0 && window.Chart) {
+          // Product Performance Chart
+          const prodMap = {};
+          state.sales.filter(s => s.status !== 'Failed' && s.status !== 'Refunded').forEach(s => {
+            const p = state.products.find(x => x.id === s.productId);
+            const name = p ? p.name : 'Other';
+            prodMap[name] = (prodMap[name] || 0) + (Number(s.amount) || 0);
+          });
+          const ctx1 = document.getElementById('chart-course-perf');
+          if (ctx1) {
+            activeCharts.push(new Chart(ctx1, {
+              type: 'bar',
+              data: {
+                labels: Object.keys(prodMap),
+                datasets: [{ label: 'Revenue', data: Object.values(prodMap), backgroundColor: '#2563eb', borderRadius: 6 }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+              }
+            }));
+          }
+
+          // Revenue Over Time Chart
+          const monthMap = {};
+          state.sales.filter(s => s.status === 'Paid' || s.status === 'Partially Paid').forEach(s => {
+            const mKey = (s.date || todayISO()).slice(0, 7);
+            monthMap[mKey] = (monthMap[mKey] || 0) + (Number(s.amount) || 0);
+          });
+          const sortedMonths = Object.keys(monthMap).sort();
+          const ctx2 = document.getElementById('chart-rev-time');
+          if (ctx2) {
+            activeCharts.push(new Chart(ctx2, {
+              type: 'line',
+              data: {
+                labels: sortedMonths,
+                datasets: [{
+                  label: 'Revenue',
+                  data: sortedMonths.map(k => monthMap[k]),
+                  borderColor: '#2563eb',
+                  backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                  fill: true,
+                  tension: 0.3
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+              }
+            }));
+          }
+        }
+      }
+
+      // ========================
+      // 2. CUSTOMERS
+      // ========================
+      function renderCustomers(container) {
+        const f = filters.customers;
+        const filtered = state.customers.filter(c => {
+          const q = f.search.toLowerCase();
+          const matchQ = !q || [c.name, c.email, c.phone, c.city, c.interestedCourse].some(v => (v || '').toLowerCase().includes(q));
+          const matchStatus = f.status === 'all' || c.paymentStatus === f.status;
+          const matchEmp = f.employee === 'all' || c.assignedTo === f.employee;
+          return matchQ && matchStatus && matchEmp;
+        });
+
+        container.innerHTML = `
+          <div class="space-y-4">
+            <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div class="flex flex-wrap items-center gap-2 flex-1">
+                <div class="relative flex-1 min-w-[200px] max-w-xs">
+                  <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                  <input id="cust-search" type="text" value="${esc(f.search)}" placeholder="Search customers..." class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <select id="cust-filter-status" class="px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  <option value="all">All Payment Statuses</option>
+                  ${PAYMENT_STATUSES.map(s => `<option value="${s}" ${f.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+                </select>
+                <select id="cust-filter-emp" class="px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  <option value="all">All Employees</option>
+                  ${state.settings.employees.map(e => `<option value="${esc(e)}" ${f.employee === e ? 'selected' : ''}>${esc(e)}</option>`).join('')}
+                </select>
+              </div>
+              <button id="add-cust-btn" type="button" class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-sm">
+                <i data-lucide="plus" class="w-4 h-4"></i> Add Customer
+              </button>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              ${filtered.length === 0
+                ? emptyStateHTML('users', state.customers.length === 0 ? 'No customers added yet' : 'No matching customers', state.customers.length === 0 ? 'Add your first customer or convert an active lead.' : 'Try clearing your search or filters.', 'Add Customer', 'cust-empty-btn')
+                : `<div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                      <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                          <th class="px-4 py-3">Customer</th>
+                          <th class="px-4 py-3">Contact</th>
+                          <th class="px-4 py-3">Course / Product</th>
+                          <th class="px-4 py-3">Purchase Date</th>
+                          <th class="px-4 py-3">Payment Status</th>
+                          <th class="px-4 py-3">Assigned To</th>
+                          <th class="px-4 py-3 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-slate-100 text-sm">
+                        ${filtered.map(c => `
+                          <tr class="hover:bg-slate-50/70">
+                            <td class="px-4 py-3">
+                              <div class="font-medium text-slate-900">${esc(c.name)}</div>
+                              <div class="text-xs text-slate-500">${esc(c.city || '—')}</div>
+                            </td>
+                            <td class="px-4 py-3">
+                              <div class="text-slate-700">${esc(c.phone)}</div>
+                              <div class="text-xs text-slate-500">${esc(c.email)}</div>
+                            </td>
+                            <td class="px-4 py-3 text-slate-700">${esc(c.interestedCourse || '—')}</td>
+                            <td class="px-4 py-3 text-slate-600">${formatDate(c.purchaseDate)}</td>
+                            <td class="px-4 py-3"><span class="px-2.5 py-0.5 text-xs font-medium rounded-full border ${badgeClass(c.paymentStatus)}">${esc(c.paymentStatus)}</span></td>
+                            <td class="px-4 py-3 text-slate-700">${esc(c.assignedTo || '—')}</td>
+                            <td class="px-4 py-3 text-right whitespace-nowrap space-x-1">
+                              <button type="button" data-view-cust="${c.id}" class="p-1.5 text-slate-500 hover:text-blue-600 rounded-md hover:bg-blue-50" title="View Details"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                              <button type="button" data-edit-cust="${c.id}" class="p-1.5 text-slate-500 hover:text-blue-600 rounded-md hover:bg-blue-50" title="Edit"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                              <button type="button" data-del-cust="${c.id}" class="p-1.5 text-slate-500 hover:text-red-600 rounded-md hover:bg-red-50" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            </td>
+                          </tr>
+                        `).join('')}
+                      </tbody>
+                    </table>
+                  </div>`
+              }
+            </div>
+          </div>
+        `;
+
+        document.getElementById('cust-search').addEventListener('input', e => { filters.customers.search = e.target.value; renderCurrentPage(); });
+        document.getElementById('cust-filter-status').addEventListener('change', e => { filters.customers.status = e.target.value; renderCurrentPage(); });
+        document.getElementById('cust-filter-emp').addEventListener('change', e => { filters.customers.employee = e.target.value; renderCurrentPage(); });
+        document.getElementById('add-cust-btn').addEventListener('click', () => openCustomerModal());
+        const emptyBtn = document.getElementById('cust-empty-btn');
+        if (emptyBtn) emptyBtn.addEventListener('click', () => openCustomerModal());
+
+        container.querySelectorAll('[data-view-cust]').forEach(b => b.addEventListener('click', () => viewCustomerModal(b.getAttribute('data-view-cust'))));
+        container.querySelectorAll('[data-edit-cust]').forEach(b => b.addEventListener('click', () => openCustomerModal(b.getAttribute('data-edit-cust'))));
+        container.querySelectorAll('[data-del-cust]').forEach(b => b.addEventListener('click', () => {
+          const id = b.getAttribute('data-del-cust');
+          const c = state.customers.find(x => x.id === id);
+          openConfirm('Delete Customer', `Remove "${c ? c.name : 'this customer'}" permanently?`, 'Delete', () => {
+            state.customers = state.customers.filter(x => x.id !== id);
+            saveState();
+            showToast('Customer deleted.');
+            renderSidebar();
+            renderCurrentPage();
+          });
+        }));
+      }
+
+      function openCustomerModal(custId) {
+        const existing = custId ? state.customers.find(c => c.id === custId) : null;
+        const productOpts = state.products.map(p => `<option value="${esc(p.name)}" ${existing && existing.interestedCourse === p.name ? 'selected' : ''}>${esc(p.name)}</option>`).join('');
+        const empOpts = state.settings.employees.map(e => `<option value="${esc(e)}" ${existing && existing.assignedTo === e ? 'selected' : ''}>${esc(e)}</option>`).join('');
+
+        openModal(existing ? 'Edit Customer' : 'Add New Customer', `
+          <form id="cust-form" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Customer Name *</label>
+                <input name="name" required value="${esc(existing ? existing.name : '')}" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Phone *</label>
+                <input name="phone" required value="${esc(existing ? existing.phone : '')}" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Email *</label>
+                <input name="email" type="email" required value="${esc(existing ? existing.email : '')}" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">City</label>
+                <input name="city" value="${esc(existing ? existing.city : '')}" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Interested Course / Product</label>
+                <select name="interestedCourse" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  <option value="">Select product/course</option>
+                  ${productOpts}
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Purchase Date</label>
+                <input name="purchaseDate" type="date" value="${esc(existing ? existing.purchaseDate : todayISO())}" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Payment Status</label>
+                <select name="paymentStatus" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  ${PAYMENT_STATUSES.map(s => `<option value="${s}" ${existing && existing.paymentStatus === s ? 'selected' : ''}>${s}</option>`).join('')}
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Assigned Employee</label>
+                <select name="assignedTo" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  <option value="">Unassigned</option>
+                  ${empOpts}
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-700 mb-1">Notes</label>
+              <textarea name="notes" rows="3" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">${esc(existing ? existing.notes : '')}</textarea>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+              <button type="button" id="cust-cancel-btn" class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50">Cancel</button>
+              <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">${existing ? 'Update Customer' : 'Save Customer'}</button>
+            </div>
+          </form>
+        `, body => {
+          body.querySelector('#cust-cancel-btn').addEventListener('click', closeModal);
+          body.querySelector('#cust-form').addEventListener('submit', e => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const payload = {
+              id: existing ? existing.id : uid('cust'),
+              name: fd.get('name').trim(),
+              phone: fd.get('phone').trim(),
+              email: fd.get('email').trim(),
+              city: fd.get('city').trim(),
+              interestedCourse: fd.get('interestedCourse'),
+              purchaseDate: fd.get('purchaseDate'),
+              paymentStatus: fd.get('paymentStatus'),
+              assignedTo: fd.get('assignedTo'),
+              notes: fd.get('notes').trim(),
+              createdAt: existing ? existing.createdAt : todayISO()
+            };
+            if (!payload.name || !payload.phone || !payload.email) {
+              showToast('Please fill all required fields.', 'error');
+              return;
+            }
+            if (existing) {
+              state.customers = state.customers.map(c => c.id === existing.id ? payload : c);
+              showToast('Customer updated.');
+            } else {
+              state.customers.push(payload);
+              showToast('Customer added.');
+            }
+            saveState();
+            closeModal();
+            renderSidebar();
+            renderCurrentPage();
+          });
+        });
+      }
+
+      function viewCustomerModal(custId) {
+        const c = state.customers.find(x => x.id === custId);
+        if (!c) return;
+        const custSales = state.sales.filter(s => s.customerId === c.id);
+        openModal('Customer Details', `
+          <div class="space-y-4 text-sm">
+            <div class="flex items-start justify-between border-b border-slate-200 pb-3">
+              <div>
+                <h3 class="text-base font-bold text-slate-900">${esc(c.name)}</h3>
+                <p class="text-xs text-slate-500">${esc(c.email)} • ${esc(c.phone)}</p>
+              </div>
+              <span class="px-2.5 py-0.5 text-xs font-medium rounded-full border ${badgeClass(c.paymentStatus)}">${esc(c.paymentStatus)}</span>
+            </div>
+            <div class="grid grid-cols-2 gap-3 text-xs">
+              <div><span class="text-slate-500 block">City</span><span class="font-medium text-slate-800">${esc(c.city || '—')}</span></div>
+              <div><span class="text-slate-500 block">Interested Course</span><span class="font-medium text-slate-800">${esc(c.interestedCourse || '—')}</span></div>
+              <div><span class="text-slate-500 block">Purchase Date</span><span class="font-medium text-slate-800">${formatDate(c.purchaseDate)}</span></div>
+              <div><span class="text-slate-500 block">Assigned Employee</span><span class="font-medium text-slate-800">${esc(c.assignedTo || 'Unassigned')}</span></div>
+            </div>
+            <div>
+              <span class="text-xs text-slate-500 block mb-1">Notes</span>
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs text-slate-700">${esc(c.notes || 'No notes recorded.')}</div>
+            </div>
+            <div>
+              <span class="text-xs font-semibold text-slate-700 block mb-2">Purchase History (${custSales.length})</span>
+              ${custSales.length === 0
+                ? '<p class="text-xs text-slate-500">No sales recorded for this customer yet.</p>'
+                : `<div class="space-y-1.5">${custSales.map(s => {
+                    const p = state.products.find(x => x.id === s.productId);
+                    return `<div class="flex justify-between items-center p-2 bg-slate-50 rounded border border-slate-200 text-xs">
+                      <span>${esc(p ? p.name : 'Product')} (${formatDate(s.date)})</span>
+                      <span class="font-semibold">${formatMoney(s.amount)} • ${esc(s.status)}</span>
+                    </div>`;
+                  }).join('')}</div>`
+              }
+            </div>
+          </div>
+        `);
+      }
+
+      // ========================
+      // 3. LEADS
+      // ========================
+      function renderLeads(container) {
+        const f = filters.leads;
+        const filtered = state.leads.filter(l => {
+          const q = f.search.toLowerCase();
+          const matchQ = !q || [l.name, l.email, l.phone, l.interestedProduct, l.source].some(v => (v || '').toLowerCase().includes(q));
+          const matchStatus = f.status === 'all' || l.status === f.status;
+          const matchSource = f.source === 'all' || l.source === f.source;
+          const matchEmp = f.employee === 'all' || l.assignedTo === f.employee;
+          return matchQ && matchStatus && matchSource && matchEmp;
+        });
+
+        container.innerHTML = `
+          <div class="space-y-4">
+            <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+              <div class="flex flex-wrap items-center gap-2 flex-1">
+                <div class="relative flex-1 min-w-[180px] max-w-xs">
+                  <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                  <input id="lead-search" type="text" value="${esc(f.search)}" placeholder="Search leads..." class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <select id="lead-filter-status" class="px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  <option value="all">All Statuses</option>
+                  ${LEAD_STATUSES.map(s => `<option value="${s}" ${f.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+                </select>
+                <select id="lead-filter-source" class="px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  <option value="all">All Sources</option>
+                  ${LEAD_SOURCES.map(s => `<option value="${s}" ${f.source === s ? 'selected' : ''}>${s}</option>`).join('')}
+                </select>
+                <select id="lead-filter-emp" class="px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  <option value="all">All Employees</option>
+                  ${state.settings.employees.map(e => `<option value="${esc(e)}" ${f.employee === e ? 'selected' : ''}>${esc(e)}</option>`).join('')}
+                </select>
+              </div>
+              <button id="add-lead-btn" type="button" class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-sm">
+                <i data-lucide="plus" class="w-4 h-4"></i> Add Lead
+              </button>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              ${filtered.length === 0
+                ? emptyStateHTML('target', state.leads.length === 0 ? 'No leads yet' : 'No matching leads', state.leads.length === 0 ? 'Add enquiries from Instagram, WhatsApp, Website, or College Partnerships.' : 'Adjust your filters to see leads.', 'Add Lead', 'lead-empty-btn')
+                : `<div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                      <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                          <th class="px-4 py-3">Lead</th>
+                          <th class="px-4 py-3">Interested In</th>
+                          <th class="px-4 py-3">Source</th>
+                          <th class="px-4 py-3">Status</th>
+                          <th class="px-4 py-3">Follow-up</th>
+                          <th class="px-4 py-3">Assigned</th>
+                          <th class="px-4 py-3 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-slate-100 text-sm">
+                        ${filtered.map(l => `
+                          <tr class="hover:bg-slate-50/70">
+                            <td class="px-4 py-3">
+                              <div class="font-medium text-slate-900">${esc(l.name)}</div>
+                              <div class="text-xs text-slate-500">${esc(l.phone)} • ${esc(l.email)}</div>
+                            </td>
+                            <td class="px-4 py-3 text-slate-700">${esc(l.interestedProduct || '—')}</td>
+                            <td class="px-4 py-3 text-slate-600 text-xs">${esc(l.source)}</td>
+                            <td class="px-4 py-3"><span class="px-2.5 py-0.5 text-xs font-medium rounded-full border ${badgeClass(l.status)}">${esc(l.status)}</span></td>
+                            <td class="px-4 py-3 text-slate-600 text-xs">${formatDate(l.followUpDate)}</td>
+                            <td class="px-4 py-3 text-slate-700">${esc(l.assignedTo || 'Unassigned')}</td>
+                            <td class="px-4 py-3 text-right whitespace-nowrap space-x-1">
+                              ${l.status !== 'Converted' ? `<button type="button" data-convert-lead="${l.id}" class="px-2 py-1 text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-md border border-emerald-200" title="Convert to Customer">Convert</button>` : ''}
+                              <button type="button" data-hist-lead="${l.id}" class="p-1.5 text-slate-500 hover:text-blue-600 rounded-md hover:bg-blue-50" title="View History"><i data-lucide="history" class="w-4 h-4"></i></button>
+                              <button type="button" data-edit-lead="${l.id}" class="p-1.5 text-slate-500 hover:text-blue-600 rounded-md hover:bg-blue-50" title="Edit"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                              <button type="button" data-del-lead="${l.id}" class="p-1.5 text-slate-500 hover:text-red-600 rounded-md hover:bg-red-50" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            </td>
+                          </tr>
+                        `).join('')}
+                      </tbody>
+                    </table>
+                  </div>`
+              }
+            </div>
+          </div>
+        `;
+
+        document.getElementById('lead-search').addEventListener('input', e => { filters.leads.search = e.target.value; renderCurrentPage(); });
+        document.getElementById('lead-filter-status').addEventListener('change', e => { filters.leads.status = e.target.value; renderCurrentPage(); });
+        document.getElementById('lead-filter-source').addEventListener('change', e => { filters.leads.source = e.target.value; renderCurrentPage(); });
+        document.getElementById('lead-filter-emp').addEventListener('change', e => { filters.leads.employee = e.target.value; renderCurrentPage(); });
+        document.getElementById('add-lead-btn').addEventListener('click', () => openLeadModal());
+        const emptyBtn = document.getElementById('lead-empty-btn');
+        if (emptyBtn) emptyBtn.addEventListener('click', () => openLeadModal());
+
+        container.querySelectorAll('[data-edit-lead]').forEach(b => b.addEventListener('click', () => openLeadModal(b.getAttribute('data-edit-lead'))));
+        container.querySelectorAll('[data-hist-lead]').forEach(b => b.addEventListener('click', () => viewLeadHistoryModal(b.getAttribute('data-hist-lead'))));
+        container.querySelectorAll('[data-convert-lead]').forEach(b => b.addEventListener('click', () => convertLead(b.getAttribute('data-convert-lead'))));
+        container.querySelectorAll('[data-del-lead]').forEach(b => b.addEventListener('click', () => {
+          const id = b.getAttribute('data-del-lead');
+          const l = state.leads.find(x => x.id === id);
+          openConfirm('Delete Lead', `Delete lead "${l ? l.name : ''}"?`, 'Delete', () => {
+            state.leads = state.leads.filter(x => x.id !== id);
+            saveState();
+            showToast('Lead deleted.');
+            renderSidebar();
+            renderCurrentPage();
+          });
+        }));
+      }
+
+      function openLeadModal(leadId) {
+        const existing = leadId ? state.leads.find(l => l.id === leadId) : null;
+        const prodOpts = state.products.map(p => `<option value="${esc(p.name)}" ${existing && existing.interestedProduct === p.name ? 'selected' : ''}>${esc(p.name)}</option>`).join('');
+        const empOpts = state.settings.employees.map(e => `<option value="${esc(e)}" ${existing && existing.assignedTo === e ? 'selected' : ''}>${esc(e)}</option>`).join('');
+
+        openModal(existing ? 'Edit Lead' : 'Add New Lead', `
+          <form id="lead-form" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Full Name *</label>
+                <input name="name" required value="${esc(existing ? existing.name : '')}" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Phone *</label>
+                <input name="phone" required value="${esc(existing ? existing.phone : '')}" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Email *</label>
+                <input name="email" type="email" required value="${esc(existing ? existing.email : '')}" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Interested Product / Course</label>
+                <select name="interestedProduct" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  <option value="">Select product/course</option>
+                  ${prodOpts}
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Lead Source</label>
+                <select name="source" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  ${LEAD_SOURCES.map(s => `<option value="${s}" ${existing && existing.source === s ? 'selected' : ''}>${s}</option>`).join('')}
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Lead Status</label>
+                <select name="status" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  ${LEAD_STATUSES.map(s => `<option value="${s}" ${(existing ? existing.status : state.settings.defaultLeadStatus) === s ? 'selected' : ''}>${s}</option>`).join('')}
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Assigned Employee</label>
+                <select name="assignedTo" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  <option value="">Unassigned</option>
+                  ${empOpts}
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Follow-up Date</label>
+                <input name="followUpDate" type="date" value="${esc(existing ? existing.followUpDate : '')}" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-700 mb-1">Notes</label>
+              <textarea name="notes" rows="3" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">${esc(existing ? existing.notes : '')}</textarea>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+              <button type="button" id="lead-cancel-btn" class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50">Cancel</button>
+              <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">${existing ? 'Update Lead' : 'Save Lead'}</button>
+            </div>
+          </form>
+        `, body => {
+          body.querySelector('#lead-cancel-btn').addEventListener('click', closeModal);
+          body.querySelector('#lead-form').addEventListener('submit', e => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const now = new Date().toLocaleString('en-IN');
+            const history = existing && Array.isArray(existing.history) ? [...existing.history] : [];
+            const newStatus = fd.get('status');
+            const newOwner = fd.get('assignedTo');
+
+            if (!existing) {
+              history.push({ at: now, note: `Lead created (${fd.get('source')}) with status ${newStatus}.` });
+            } else {
+              if (existing.status !== newStatus) history.push({ at: now, note: `Status changed: ${existing.status} → ${newStatus}.` });
+              if (existing.assignedTo !== newOwner) history.push({ at: now, note: `Assigned to: ${newOwner || 'Unassigned'}.` });
+              if (existing.status === newStatus && existing.assignedTo === newOwner) history.push({ at: now, note: 'Lead details updated.' });
+            }
+
+            const payload = {
+              id: existing ? existing.id : uid('lead'),
+              name: fd.get('name').trim(),
+              phone: fd.get('phone').trim(),
+              email: fd.get('email').trim(),
+              interestedProduct: fd.get('interestedProduct'),
+              source: fd.get('source'),
+              status: newStatus,
+              assignedTo: newOwner,
+              followUpDate: fd.get('followUpDate'),
+              notes: fd.get('notes').trim(),
+              history,
+              createdAt: existing ? existing.createdAt : todayISO()
+            };
+
+            if (existing) {
+              state.leads = state.leads.map(l => l.id === existing.id ? payload : l);
+              showToast('Lead updated.');
+            } else {
+              state.leads.push(payload);
+              showToast('Lead added.');
+            }
+            saveState();
+            closeModal();
+            renderSidebar();
+            renderCurrentPage();
+          });
+        });
+      }
+
+      function convertLead(leadId) {
+        const l = state.leads.find(x => x.id === leadId);
+        if (!l) return;
+        openConfirm('Convert Lead to Customer', `Convert "${l.name}" into a Customer record?`, 'Convert', () => {
+          const newCust = {
+            id: uid('cust'),
+            name: l.name,
+            email: l.email,
+            phone: l.phone,
+            city: '',
+            interestedCourse: l.interestedProduct || '',
+            purchaseDate: todayISO(),
+            paymentStatus: 'Pending',
+            assignedTo: l.assignedTo || '',
+            notes: `Converted from ${l.source} lead. ${l.notes || ''}`.trim(),
+            createdAt: todayISO()
+          };
+          state.customers.push(newCust);
+          l.status = 'Converted';
+          l.history = l.history || [];
+          l.history.push({ at: new Date().toLocaleString('en-IN'), note: 'Lead converted to Customer.' });
+          saveState();
+          showToast(`${l.name} converted to Customer.`);
+          renderSidebar();
+          renderCurrentPage();
+        });
+      }
+
+      function viewLeadHistoryModal(leadId) {
+        const l = state.leads.find(x => x.id === leadId);
+        if (!l) return;
+        const hist = Array.isArray(l.history) ? [...l.history].reverse() : [];
+        openModal(`Lead History — ${l.name}`, `
+          <div class="space-y-3">
+            ${hist.length === 0
+              ? '<p class="text-sm text-slate-500">No activity recorded yet.</p>'
+              : hist.map(h => `
+                <div class="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs">
+                  <div class="font-medium text-slate-800">${esc(h.note)}</div>
+                  <div class="text-slate-400 mt-1">${esc(h.at)}</div>
+                </div>
+              `).join('')
+            }
+          </div>
+        `);
+      }
+
+      // ========================
+      // 4. COURSES & PRODUCTS
+      // ========================
+      function renderProducts(container) {
+        container.innerHTML = `
+          <div class="space-y-4">
+            <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+              <div>
+                <h2 class="text-sm font-semibold text-slate-900">Product &amp; Course Catalogue</h2>
+                <p class="text-xs text-slate-500">Add, edit, price, and toggle availability for Azisly.ai offerings</p>
+              </div>
+              <button id="add-prod-btn" type="button" class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-sm">
+                <i data-lucide="plus" class="w-4 h-4"></i> Add Product
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              ${state.products.map(p => {
+                const prodSales = state.sales.filter(s => s.productId === p.id && s.status !== 'Failed' && s.status !== 'Refunded');
+                const units = prodSales.length;
+                const rev = prodSales.filter(s => s.status === 'Paid' || s.status === 'Partially Paid').reduce((a, b) => a + (Number(b.amount) || 0), 0);
+                return `
+                  <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex flex-col justify-between">
+                    <div>
+                      <div class="flex items-start justify-between gap-2">
+                        <div>
+                          <span class="text-[11px] font-semibold uppercase tracking-wider text-blue-600">${esc(p.category || 'Product')}</span>
+                          <h3 class="text-base font-bold text-slate-900 mt-0.5">${esc(p.name)}</h3>
+                        </div>
+                        <span class="px-2.5 py-0.5 text-xs font-medium rounded-full border ${badgeClass(p.active ? 'Active' : 'Inactive')}">${p.active ? 'Active' : 'Inactive'}</span>
+                      </div>
+                      <p class="mt-2 text-xs text-slate-600 leading-relaxed">${esc(p.description || 'No description.')}</p>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-100">
+                      <div class="flex items-center justify-between text-sm mb-3">
+                        <div>
+                          <span class="text-xs text-slate-500 block">Price</span>
+                          <span class="font-bold text-slate-900">${formatMoney(p.price)}</span>
+                        </div>
+                        <div class="text-right">
+                          <span class="text-xs text-slate-500 block">Units Sold / Rev</span>
+                          <span class="font-semibold text-slate-800">${units} / ${formatMoney(rev)}</span>
+                        </div>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <button type="button" data-edit-prod="${p.id}" class="flex-1 px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50">Edit</button>
+                        <button type="button" data-toggle-prod="${p.id}" class="flex-1 px-3 py-1.5 text-xs font-medium ${p.active ? 'text-amber-700 bg-amber-50 border-amber-200' : 'text-emerald-700 bg-emerald-50 border-emerald-200'} border rounded-lg hover:opacity-90">${p.active ? 'Deactivate' : 'Activate'}</button>
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+
+        document.getElementById('add-prod-btn').addEventListener('click', () => openProductModal());
+        container.querySelectorAll('[data-edit-prod]').forEach(b => b.addEventListener('click', () => openProductModal(b.getAttribute('data-edit-prod'))));
+        container.querySelectorAll('[data-toggle-prod]').forEach(b => b.addEventListener('click', () => {
+          const p = state.products.find(x => x.id === b.getAttribute('data-toggle-prod'));
+          if (p) {
+            p.active = !p.active;
+            saveState();
+            showToast(`${p.name} ${p.active ? 'activated' : 'deactivated'}.`);
+            renderCurrentPage();
+          }
+        }));
+      }
+
+      function openProductModal(prodId) {
+        const existing = prodId ? state.products.find(p => p.id === prodId) : null;
+        openModal(existing ? 'Edit Product / Course' : 'Add Product / Course', `
+          <form id="prod-form" class="space-y-4">
+            <div>
+              <label class="block text-xs font-medium text-slate-700 mb-1">Product / Course Name *</label>
+              <input name="name" required value="${esc(existing ? existing.name : '')}" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg" />
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Category</label>
+                <input name="category" value="${esc(existing ? existing.category : 'Course')}" placeholder="AI Software, Course, Programme..." class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Price (${esc(state.settings.currency)}) *</label>
+                <input name="price" type="number" min="0" required value="${existing ? existing.price : ''}" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-700 mb-1">Description</label>
+              <textarea name="description" rows="3" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">${esc(existing ? existing.description : '')}</textarea>
+            </div>
+            <label class="flex items-center gap-2 text-sm text-slate-700">
+              <input name="active" type="checkbox" ${!existing || existing.active ? 'checked' : ''} class="rounded border-slate-300 text-blue-600" />
+              <span>Active (available for new sales)</span>
+            </label>
+            <div class="flex justify-end gap-2 pt-2">
+              <button type="button" id="prod-cancel-btn" class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg">Cancel</button>
+              <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">${existing ? 'Update' : 'Save Product'}</button>
+            </div>
+          </form>
+        `, body => {
+          body.querySelector('#prod-cancel-btn').addEventListener('click', closeModal);
+          body.querySelector('#prod-form').addEventListener('submit', e => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const payload = {
+              id: existing ? existing.id : uid('prod'),
+              name: fd.get('name').trim(),
+              category: fd.get('category').trim() || 'Product',
+              price: Number(fd.get('price')) || 0,
+              description: fd.get('description').trim(),
+              active: fd.get('active') === 'on'
+            };
+            if (existing) {
+              state.products = state.products.map(p => p.id === existing.id ? payload : p);
+              showToast('Product updated.');
+            } else {
+              state.products.push(payload);
+              showToast('Product added.');
+            }
+            saveState();
+            closeModal();
+            renderCurrentPage();
+          });
+        });
+      }
+
+      // ========================
+      // 5. TO-DO & FOLLOW-UPS
+      // ========================
+      function renderTasks(container) {
+        const today = todayISO();
+        const f = filters.tasks;
+        const filtered = state.tasks.filter(t => {
+          const q = f.search.toLowerCase();
+          const matchQ = !q || [t.title, t.relatedName, t.assignedTo].some(v => (v || '').toLowerCase().includes(q));
+          const matchStatus = f.status === 'all' || t.status === f.status;
+          const matchPrio = f.priority === 'all' || t.priority === f.priority;
+          return matchQ && matchStatus && matchPrio;
+        });
+
+        const overdueCount = state.tasks.filter(t => t.dueDate && t.dueDate < today && t.status !== 'Completed').length;
+        const todayCount = state.tasks.filter(t => t.dueDate === today && t.status !== 'Completed').length;
+
+        container.innerHTML = `
+          <div class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="bg-white rounded-xl border border-red-200 p-4 flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-medium text-red-600 uppercase">Overdue Tasks</div>
+                  <div class="text-2xl font-bold text-slate-900 mt-1">${overdueCount}</div>
+                </div>
+                <i data-lucide="alert-circle" class="w-7 h-7 text-red-500"></i>
+              </div>
+              <div class="bg-white rounded-xl border border-blue-200 p-4 flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-medium text-blue-600 uppercase">Due Today</div>
+                  <div class="text-2xl font-bold text-slate-900 mt-1">${todayCount}</div>
+                </div>
+                <i data-lucide="calendar-clock" class="w-7 h-7 text-blue-500"></i>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div class="flex flex-wrap items-center gap-2 flex-1">
+                <input id="task-search" type="text" value="${esc(f.search)}" placeholder="Search tasks..." class="px-3 py-2 text-sm border border-slate-300 rounded-lg min-w-[200px]" />
+                <select id="task-filter-status" class="px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  <option value="all">All Statuses</option>
+                  ${TASK_STATUSES.map(s => `<option value="${s}" ${f.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+                </select>
+                <select id="task-filter-prio" class="px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  <option value="all">All Priorities</option>
+                  ${TASK_PRIORITIES.map(p => `<option value="${p}" ${f.priority === p ? 'selected' : ''}>${p}</option>`).join('')}
+                </select>
+              </div>
+              <button id="add-task-btn" type="button" class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                <i data-lucide="plus" class="w-4 h-4"></i> Add Task
+              </button>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              ${filtered.length === 0
+                ? emptyStateHTML('check-square', 'No tasks yet', 'Create a follow-up task linked to a customer or lead.', 'Add Task', 'task-empty-btn')
+                : `<div class="divide-y divide-slate-100">
+                    ${filtered.map(t => {
+                      const isOverdue = t.dueDate && t.dueDate < today && t.status !== 'Completed';
+                      const isToday = t.dueDate === today && t.status !== 'Completed';
+                      return `
+                        <div class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70">
+                          <div class="flex items-start gap-3">
+                            <input type="checkbox" data-toggle-task="${t.id}" ${t.status === 'Completed' ? 'checked' : ''} class="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 cursor-pointer" />
+                            <div>
+                              <div class="text-sm font-medium ${t.status === 'Completed' ? 'line-through text-slate-400' : 'text-slate-900'}">${esc(t.title)}</div>
+                              <div class="text-xs text-slate-500 mt-0.5">
+                                Related: ${esc(t.relatedName || 'General')} • Assigned: ${esc(t.assignedTo || 'Unassigned')} • Due: ${formatDate(t.dueDate)}
+                                ${isOverdue ? '<span class="ml-1.5 text-red-600 font-semibold">(Overdue)</span>' : ''}
+                                ${isToday ? '<span class="ml-1.5 text-blue-600 font-semibold">(Today)</span>' : ''}
+                              </div>
+                            </div>
+                          </div>
+                          <div class="flex items-center gap-2 self-end sm:self-center">
+                            <span class="px-2.5 py-0.5 text-xs font-medium rounded-full border ${badgeClass(t.priority)}">${esc(t.priority)}</span>
+                            <span class="px-2.5 py-0.5 text-xs font-medium rounded-full border ${badgeClass(t.status)}">${esc(t.status)}</span>
+                            <button type="button" data-del-task="${t.id}" class="p-1.5 text-slate-400 hover:text-red-600 rounded-md hover:bg-red-50"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                          </div>
+                        </div>
+                      `;
+                    }).join('')}
+                  </div>`
+              }
+            </div>
+          </div>
+        `;
+
+        document.getElementById('task-search').addEventListener('input', e => { filters.tasks.search = e.target.value; renderCurrentPage(); });
+        document.getElementById('task-filter-status').addEventListener('change', e => { filters.tasks.status = e.target.value; renderCurrentPage(); });
+        document.getElementById('task-filter-prio').addEventListener('change', e => { filters.tasks.priority = e.target.value; renderCurrentPage(); });
+        document.getElementById('add-task-btn').addEventListener('click', () => openTaskModal());
+        const emptyBtn = document.getElementById('task-empty-btn');
+        if (emptyBtn) emptyBtn.addEventListener('click', () => openTaskModal());
+
+        container.querySelectorAll('[data-toggle-task]').forEach(cb => cb.addEventListener('change', () => {
+          const t = state.tasks.find(x => x.id === cb.getAttribute('data-toggle-task'));
+          if (t) {
+            t.status = cb.checked ? 'Completed' : 'Pending';
+            saveState();
+            showToast(cb.checked ? 'Task completed!' : 'Task reopened.');
+            renderSidebar();
+            renderCurrentPage();
+          }
+        }));
+        container.querySelectorAll('[data-del-task]').forEach(b => b.addEventListener('click', () => {
+          const id = b.getAttribute('data-del-task');
+          openConfirm('Delete Task', 'Delete this task permanently?', 'Delete', () => {
+            state.tasks = state.tasks.filter(x => x.id !== id);
+            saveState();
+            showToast('Task deleted.');
+            renderSidebar();
+            renderCurrentPage();
+          });
+        }));
+      }
+
+      function openTaskModal() {
+        const relatedOpts = [
+          ...state.leads.map(l => `Lead: ${l.name}`),
+          ...state.customers.map(c => `Customer: ${c.name}`)
+        ];
+        openModal('Add To-do / Follow-up Task', `
+          <form id="task-form" class="space-y-4">
+            <div>
+              <label class="block text-xs font-medium text-slate-700 mb-1">Task Title *</label>
+              <input name="title" required placeholder="e.g., Call for MockMate demo follow-up" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg" />
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Related Customer or Lead</label>
+                <select name="relatedName" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  <option value="General">General</option>
+                  ${relatedOpts.map(r => `<option value="${esc(r)}">${esc(r)}</option>`).join('')}
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Assigned Employee</label>
+                <select name="assignedTo" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  <option value="">Unassigned</option>
+                  ${state.settings.employees.map(e => `<option value="${esc(e)}">${esc(e)}</option>`).join('')}
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Due Date *</label>
+                <input name="dueDate" type="date" required value="${todayISO()}" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Priority</label>
+                <select name="priority" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  ${TASK_PRIORITIES.map(p => `<option value="${p}">${p}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+              <button type="button" id="task-cancel-btn" class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg">Cancel</button>
+              <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Save Task</button>
+            </div>
+          </form>
+        `, body => {
+          body.querySelector('#task-cancel-btn').addEventListener('click', closeModal);
+          body.querySelector('#task-form').addEventListener('submit', e => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            state.tasks.push({
+              id: uid('task'),
+              title: fd.get('title').trim(),
+              relatedName: fd.get('relatedName'),
+              assignedTo: fd.get('assignedTo'),
+              dueDate: fd.get('dueDate'),
+              priority: fd.get('priority'),
+              status: 'Pending'
+            });
+            saveState();
+            closeModal();
+            showToast('Task added.');
+            renderSidebar();
+            renderCurrentPage();
+          });
+        });
+      }
+
+      // ========================
+      // 6. CALENDAR
+      // ========================
+      function renderCalendar(container) {
+        const year = calendarCursor.getFullYear();
+        const month = calendarCursor.getMonth();
+        const monthName = calendarCursor.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        // Combine leads follow-ups, tasks, and custom calendar events
+        const eventsByDate = {};
+        const addEv = (date, ev) => {
+          if (!date) return;
+          if (!eventsByDate[date]) eventsByDate[date] = [];
+          eventsByDate[date].push(ev);
+        };
+        state.leads.forEach(l => {
+          if (l.followUpDate && l.status !== 'Converted' && l.status !== 'Lost') {
+            addEv(l.followUpDate, { type: 'Follow-up', title: `Lead: ${l.name}`, color: 'bg-amber-100 text-amber-800' });
+          }
+        });
+        state.tasks.forEach(t => {
+          if (t.dueDate && t.status !== 'Completed') {
+            addEv(t.dueDate, { type: 'Task', title: t.title, color: 'bg-blue-100 text-blue-800' });
+          }
+        });
+        state.calendarEvents.forEach(ev => {
+          const colorMap = {
+            'Follow-up': 'bg-amber-100 text-amber-800',
+            'Customer Meeting': 'bg-indigo-100 text-indigo-800',
+            'Demo Session': 'bg-emerald-100 text-emerald-800',
+            'Payment Reminder': 'bg-red-100 text-red-800'
+          };
+          addEv(ev.date, { type: ev.type, title: ev.title, color: colorMap[ev.type] || 'bg-slate-100 text-slate-800' });
+        });
+
+        let cells = '';
+        for (let i = 0; i < firstDay; i++) cells += `<div class="min-h-[92px] bg-slate-50/70 border-b border-r border-slate-200 p-1.5"></div>`;
+        for (let d = 1; d <= daysInMonth; d++) {
+          const iso = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+          const dayEvs = eventsByDate[iso] || [];
+          const isToday = iso === todayISO();
+          cells += `
+            <div class="min-h-[92px] bg-white border-b border-r border-slate-200 p-1.5 flex flex-col">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-xs font-semibold ${isToday ? 'w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center' : 'text-slate-700'}">${d}</span>
+              </div>
+              <div class="space-y-1 overflow-y-auto max-h-[64px]">
+                ${dayEvs.map(e => `<div class="text-[10px] px-1.5 py-0.5 rounded font-medium truncate ${e.color}" title="${esc(e.type + ': ' + e.title)}">${esc(e.title)}</div>`).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        container.innerHTML = `
+          <div class="space-y-4">
+            <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-2">
+                <button id="cal-prev" type="button" class="p-2 border border-slate-300 rounded-lg hover:bg-slate-50"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                <h2 class="text-base font-semibold text-slate-900 min-w-[160px] text-center">${esc(monthName)}</h2>
+                <button id="cal-next" type="button" class="p-2 border border-slate-300 rounded-lg hover:bg-slate-50"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="text-[11px] px-2 py-1 rounded bg-amber-100 text-amber-800 font-medium">Follow-ups</span>
+                <span class="text-[11px] px-2 py-1 rounded bg-indigo-100 text-indigo-800 font-medium">Meetings</span>
+                <span class="text-[11px] px-2 py-1 rounded bg-emerald-100 text-emerald-800 font-medium">Demos</span>
+                <span class="text-[11px] px-2 py-1 rounded bg-red-100 text-red-800 font-medium">Payment Reminders</span>
+                <button id="add-cal-btn" type="button" class="ml-2 inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                  <i data-lucide="plus" class="w-4 h-4"></i> Schedule Event
+                </button>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div class="grid grid-cols-7 bg-slate-50 border-b border-slate-200 text-center text-xs font-semibold text-slate-600 py-2">
+                <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+              </div>
+              <div class="grid grid-cols-7 border-l border-slate-200">${cells}</div>
+            </div>
+          </div>
+        `;
+
+        document.getElementById('cal-prev').addEventListener('click', () => { calendarCursor.setMonth(calendarCursor.getMonth() - 1); renderCurrentPage(); });
+        document.getElementById('cal-next').addEventListener('click', () => { calendarCursor.setMonth(calendarCursor.getMonth() + 1); renderCurrentPage(); });
+        document.getElementById('add-cal-btn').addEventListener('click', () => openCalendarModal());
+      }
+
+      function openCalendarModal() {
+        openModal('Schedule Calendar Event', `
+          <form id="cal-form" class="space-y-4">
+            <div>
+              <label class="block text-xs font-medium text-slate-700 mb-1">Event Title *</label>
+              <input name="title" required placeholder="e.g., MockMate Demo with Ananya" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg" />
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Event Type</label>
+                <select name="type" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  ${CALENDAR_TYPES.map(t => `<option value="${t}">${t}</option>`).join('')}
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Date *</label>
+                <input name="date" type="date" required value="${todayISO()}" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg" />
+              </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+              <button type="button" id="cal-cancel-btn" class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg">Cancel</button>
+              <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Save Event</button>
+            </div>
+          </form>
+        `, body => {
+          body.querySelector('#cal-cancel-btn').addEventListener('click', closeModal);
+          body.querySelector('#cal-form').addEventListener('submit', e => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            state.calendarEvents.push({
+              id: uid('cal'),
+              title: fd.get('title').trim(),
+              type: fd.get('type'),
+              date: fd.get('date')
+            });
+            saveState();
+            closeModal();
+            showToast('Calendar event scheduled.');
+            renderCurrentPage();
+          });
+        });
+      }
+
+      // ========================
+      // 7. SALES & PAYMENTS
+      // ========================
+      function renderSales(container) {
+        const f = filters.sales;
+        const filtered = state.sales.filter(s => {
+          const cust = state.customers.find(c => c.id === s.customerId);
+          const prod = state.products.find(p => p.id === s.productId);
+          const q = f.search.toLowerCase();
+          const matchQ = !q || [cust && cust.name, prod && prod.name, s.reference, s.method].some(v => (v || '').toLowerCase().includes(q));
+          const matchStatus = f.status === 'all' || s.status === f.status;
+          return matchQ && matchStatus;
+        });
+
+        container.innerHTML = `
+          <div class="space-y-4">
+            <div class="bg-blue-50 border border-blue-200 rounded-xl px-4 py-2.5 text-xs text-blue-800 flex items-center gap-2">
+              <i data-lucide="info" class="w-4 h-4 shrink-0"></i>
+              <span>Manual payment record management only. Record offline/gateway references here; no live payment processing is performed.</span>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div class="flex flex-wrap items-center gap-2 flex-1">
+                <input id="sale-search" type="text" value="${esc(f.search)}" placeholder="Search sales or reference..." class="px-3 py-2 text-sm border border-slate-300 rounded-lg min-w-[200px]" />
+                <select id="sale-filter-status" class="px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  <option value="all">All Payment Statuses</option>
+                  ${PAYMENT_STATUSES.map(s => `<option value="${s}" ${f.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+                </select>
+              </div>
+              <button id="add-sale-btn" type="button" class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                <i data-lucide="plus" class="w-4 h-4"></i> Record Sale
+              </button>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              ${filtered.length === 0
+                ? emptyStateHTML('credit-card', 'No sales recorded yet', 'Record a customer purchase to update revenue and product metrics.', 'Record Sale', 'sale-empty-btn')
+                : `<div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                      <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                          <th class="px-4 py-3">Customer</th>
+                          <th class="px-4 py-3">Product / Course</th>
+                          <th class="px-4 py-3">Amount</th>
+                          <th class="px-4 py-3">Date</th>
+                          <th class="px-4 py-3">Method &amp; Ref</th>
+                          <th class="px-4 py-3">Status</th>
+                          <th class="px-4 py-3 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-slate-100 text-sm">
+                        ${filtered.map(s => {
+                          const cust = state.customers.find(c => c.id === s.customerId);
+                          const prod = state.products.find(p => p.id === s.productId);
+                          return `
+                            <tr class="hover:bg-slate-50/70">
+                              <td class="px-4 py-3 font-medium text-slate-900">${esc(cust ? cust.name : 'Deleted Customer')}</td>
+                              <td class="px-4 py-3 text-slate-700">${esc(prod ? prod.name : 'Product')}</td>
+                              <td class="px-4 py-3 font-semibold text-slate-900">${formatMoney(s.amount)}</td>
+                              <td class="px-4 py-3 text-slate-600 text-xs">${formatDate(s.date)}</td>
+                              <td class="px-4 py-3 text-xs text-slate-600">${esc(s.method)} • ${esc(s.reference || '—')}</td>
+                              <td class="px-4 py-3"><span class="px-2.5 py-0.5 text-xs font-medium rounded-full border ${badgeClass(s.status)}">${esc(s.status)}</span></td>
+                              <td class="px-4 py-3 text-right space-x-1">
+                                <button type="button" data-edit-sale="${s.id}" class="p-1.5 text-slate-500 hover:text-blue-600 rounded-md hover:bg-blue-50"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                                <button type="button" data-del-sale="${s.id}" class="p-1.5 text-slate-500 hover:text-red-600 rounded-md hover:bg-red-50"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                              </td>
+                            </tr>
+                          `;
+                        }).join('')}
+                      </tbody>
+                    </table>
+                  </div>`
+              }
+            </div>
+          </div>
+        `;
+
+        document.getElementById('sale-search').addEventListener('input', e => { filters.sales.search = e.target.value; renderCurrentPage(); });
+        document.getElementById('sale-filter-status').addEventListener('change', e => { filters.sales.status = e.target.value; renderCurrentPage(); });
+        document.getElementById('add-sale-btn').addEventListener('click', () => openSaleModal());
+        const emptyBtn = document.getElementById('sale-empty-btn');
+        if (emptyBtn) emptyBtn.addEventListener('click', () => openSaleModal());
+
+        container.querySelectorAll('[data-edit-sale]').forEach(b => b.addEventListener('click', () => openSaleModal(b.getAttribute('data-edit-sale'))));
+        container.querySelectorAll('[data-del-sale]').forEach(b => b.addEventListener('click', () => {
+          const id = b.getAttribute('data-del-sale');
+          openConfirm('Delete Sale Record', 'Remove this sale record? Dashboard totals will recalculate.', 'Delete', () => {
+            state.sales = state.sales.filter(x => x.id !== id);
+            saveState();
+            showToast('Sale record deleted.');
+            renderSidebar();
+            renderCurrentPage();
+          });
+        }));
+      }
+
+      function openSaleModal(saleId) {
+        if (state.customers.length === 0) {
+          showToast('Please add a customer first before recording a sale.', 'info');
+          openCustomerModal();
+          return;
+        }
+        const existing = saleId ? state.sales.find(s => s.id === saleId) : null;
+        const activeProducts = state.products.filter(p => p.active || (existing && existing.productId === p.id));
+
+        openModal(existing ? 'Edit Sale Record' : 'Record New Sale', `
+          <form id="sale-form" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Customer *</label>
+                <select name="customerId" required class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  ${state.customers.map(c => `<option value="${c.id}" ${existing && existing.customerId === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Product / Course *</label>
+                <select id="sale-product-select" name="productId" required class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  ${activeProducts.map(p => `<option value="${p.id}" data-price="${p.price}" ${existing && existing.productId === p.id ? 'selected' : ''}>${esc(p.name)} (${formatMoney(p.price)})</option>`).join('')}
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Amount (${esc(state.settings.currency)}) *</label>
+                <input id="sale-amount-input" name="amount" type="number" min="0" required value="${existing ? existing.amount : (activeProducts[0] ? activeProducts[0].price : 0)}" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Payment Date *</label>
+                <input name="date" type="date" required value="${existing ? existing.date : todayISO()}" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Payment Status</label>
+                <select name="status" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  ${PAYMENT_STATUSES.map(s => `<option value="${s}" ${existing && existing.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Payment Method</label>
+                <select name="method" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  ${PAYMENT_METHODS.map(m => `<option value="${m}" ${existing && existing.method === m ? 'selected' : ''}>${m}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-700 mb-1">Transaction Reference</label>
+              <input name="reference" value="${esc(existing ? existing.reference : '')}" placeholder="e.g., UPI/UTR/Receipt #" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg" />
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+              <button type="button" id="sale-cancel-btn" class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg">Cancel</button>
+              <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">${existing ? 'Update Sale' : 'Save Sale'}</button>
+            </div>
+          </form>
+        `, body => {
+          const prodSel = body.querySelector('#sale-product-select');
+          const amtInput = body.querySelector('#sale-amount-input');
+          if (!existing) {
+            prodSel.addEventListener('change', () => {
+              const opt = prodSel.options[prodSel.selectedIndex];
+              if (opt) amtInput.value = opt.getAttribute('data-price') || 0;
+            });
+          }
+          body.querySelector('#sale-cancel-btn').addEventListener('click', closeModal);
+          body.querySelector('#sale-form').addEventListener('submit', e => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const payload = {
+              id: existing ? existing.id : uid('sale'),
+              customerId: fd.get('customerId'),
+              productId: fd.get('productId'),
+              amount: Number(fd.get('amount')) || 0,
+              date: fd.get('date'),
+              status: fd.get('status'),
+              method: fd.get('method'),
+              reference: fd.get('reference').trim()
+            };
+            if (existing) {
+              state.sales = state.sales.map(s => s.id === existing.id ? payload : s);
+              showToast('Sale record updated.');
+            } else {
+              state.sales.push(payload);
+              showToast('Sale recorded.');
+            }
+            saveState();
+            closeModal();
+            renderSidebar();
+            renderCurrentPage();
+          });
+        });
+      }
+
+      // ========================
+      // 8. CAREER ENGAGEMENT
+      // ========================
+      function renderEngagement(container) {
+        const f = filters.engagement;
+        const filtered = state.engagements.filter(e => {
+          const cust = state.customers.find(c => c.id === e.customerId);
+          const q = f.search.toLowerCase();
+          const matchQ = !q || [cust && cust.name, e.feedback, e.jobReadiness].some(v => (v || '').toLowerCase().includes(q));
+          const matchR = f.readiness === 'all' || e.jobReadiness === f.readiness;
+          return matchQ && matchR;
+        });
+
+        container.innerHTML = `
+          <div class="space-y-4">
+            <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div class="flex flex-wrap items-center gap-2">
+                <input id="eng-search" type="text" value="${esc(f.search)}" placeholder="Search student engagement..." class="px-3 py-2 text-sm border border-slate-300 rounded-lg min-w-[200px]" />
+                <select id="eng-filter-ready" class="px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  <option value="all">All Job-Readiness Levels</option>
+                  <option value="Beginner" ${f.readiness === 'Beginner' ? 'selected' : ''}>Beginner</option>
+                  <option value="Developing" ${f.readiness === 'Developing' ? 'selected' : ''}>Developing</option>
+                  <option value="Interview-Ready" ${f.readiness === 'Interview-Ready' ? 'selected' : ''}>Interview-Ready</option>
+                  <option value="Placed" ${f.readiness === 'Placed' ? 'selected' : ''}>Placed</option>
+                </select>
+              </div>
+              <button id="add-eng-btn" type="button" class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                <i data-lucide="plus" class="w-4 h-4"></i> Add Engagement
+              </button>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              ${filtered.length === 0
+                ? emptyStateHTML('briefcase', 'No career engagement records yet', 'Track mock interviews, resume preparation, counselling, and job-readiness.', 'Add Engagement', 'eng-empty-btn')
+                : `<div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                      <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                          <th class="px-4 py-3">Student / Customer</th>
+                          <th class="px-4 py-3">Mock Interviews</th>
+                          <th class="px-4 py-3">Resume Prep</th>
+                          <th class="px-4 py-3">Counselling</th>
+                          <th class="px-4 py-3">Job Readiness</th>
+                          <th class="px-4 py-3">Feedback</th>
+                          <th class="px-4 py-3 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-slate-100 text-sm">
+                        ${filtered.map(e => {
+                          const cust = state.customers.find(c => c.id === e.customerId);
+                          return `
+                            <tr class="hover:bg-slate-50/70">
+                              <td class="px-4 py-3 font-medium text-slate-900">${esc(cust ? cust.name : 'Student')}</td>
+                              <td class="px-4 py-3 text-slate-700 text-xs">${esc(e.mockInterviews)}</td>
+                              <td class="px-4 py-3 text-slate-700 text-xs">${esc(e.resumePrep)}</td>
+                              <td class="px-4 py-3 text-slate-700 text-xs">${esc(e.counselling)}</td>
+                              <td class="px-4 py-3"><span class="px-2.5 py-0.5 text-xs font-medium rounded-full border ${badgeClass(e.jobReadiness)}">${esc(e.jobReadiness)}</span></td>
+                              <td class="px-4 py-3 text-xs text-slate-600 max-w-xs truncate">${esc(e.feedback || '—')}</td>
+                              <td class="px-4 py-3 text-right space-x-1">
+                                <button type="button" data-edit-eng="${e.id}" class="p-1.5 text-slate-500 hover:text-blue-600 rounded-md hover:bg-blue-50"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                                <button type="button" data-del-eng="${e.id}" class="p-1.5 text-slate-500 hover:text-red-600 rounded-md hover:bg-red-50"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                              </td>
+                            </tr>
+                          `;
+                        }).join('')}
+                      </tbody>
+                    </table>
+                  </div>`
+              }
+            </div>
+          </div>
+        `;
+
+        document.getElementById('eng-search').addEventListener('input', e => { filters.engagement.search = e.target.value; renderCurrentPage(); });
+        document.getElementById('eng-filter-ready').addEventListener('change', e => { filters.engagement.readiness = e.target.value; renderCurrentPage(); });
+        document.getElementById('add-eng-btn').addEventListener('click', () => openEngagementModal());
+        const emptyBtn = document.getElementById('eng-empty-btn');
+        if (emptyBtn) emptyBtn.addEventListener('click', () => openEngagementModal());
+
+        container.querySelectorAll('[data-edit-eng]').forEach(b => b.addEventListener('click', () => openEngagementModal(b.getAttribute('data-edit-eng'))));
+        container.querySelectorAll('[data-del-eng]').forEach(b => b.addEventListener('click', () => {
+          const id = b.getAttribute('data-del-eng');
+          openConfirm('Delete Engagement Record', 'Delete this career engagement record?', 'Delete', () => {
+            state.engagements = state.engagements.filter(x => x.id !== id);
+            saveState();
+            showToast('Engagement record deleted.');
+            renderCurrentPage();
+          });
+        }));
+      }
+
+      function openEngagementModal(engId) {
+        if (state.customers.length === 0) {
+          showToast('Please add a customer first.', 'info');
+          openCustomerModal();
+          return;
+        }
+        const existing = engId ? state.engagements.find(e => e.id === engId) : null;
+        openModal(existing ? 'Edit Career Engagement' : 'Add Career Engagement', `
+          <form id="eng-form" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Student / Customer *</label>
+                <select name="customerId" required class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  ${state.customers.map(c => `<option value="${c.id}" ${existing && existing.customerId === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Mock Interview Participation</label>
+                <select name="mockInterviews" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  ${['Not Started', '1-2 Completed', '3+ Completed', 'Ongoing'].map(v => `<option value="${v}" ${existing && existing.mockInterviews === v ? 'selected' : ''}>${v}</option>`).join('')}
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Resume Preparation</label>
+                <select name="resumePrep" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  ${['Not Started', 'Draft Ready', 'Reviewed', 'Finalized'].map(v => `<option value="${v}" ${existing && existing.resumePrep === v ? 'selected' : ''}>${v}</option>`).join('')}
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Career Counselling</label>
+                <select name="counselling" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  ${['Pending', 'Scheduled', 'Completed'].map(v => `<option value="${v}" ${existing && existing.counselling === v ? 'selected' : ''}>${v}</option>`).join('')}
+                </select>
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-medium text-slate-700 mb-1">Job-Readiness Status</label>
+                <select name="jobReadiness" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                  ${['Beginner', 'Developing', 'Interview-Ready', 'Placed'].map(v => `<option value="${v}" ${existing && existing.jobReadiness === v ? 'selected' : ''}>${v}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-700 mb-1">Student Feedback</label>
+              <textarea name="feedback" rows="3" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">${esc(existing ? existing.feedback : '')}</textarea>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+              <button type="button" id="eng-cancel-btn" class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg">Cancel</button>
+              <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Save</button>
+            </div>
+          </form>
+        `, body => {
+          body.querySelector('#eng-cancel-btn').addEventListener('click', closeModal);
+          body.querySelector('#eng-form').addEventListener('submit', e => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const payload = {
+              id: existing ? existing.id : uid('eng'),
+              customerId: fd.get('customerId'),
+              mockInterviews: fd.get('mockInterviews'),
+              resumePrep: fd.get('resumePrep'),
+              counselling: fd.get('counselling'),
+              jobReadiness: fd.get('jobReadiness'),
+              feedback: fd.get('feedback').trim()
+            };
+            if (existing) {
+              state.engagements = state.engagements.map(x => x.id === existing.id ? payload : x);
+              showToast('Engagement updated.');
+            } else {
+              state.engagements.push(payload);
+              showToast('Engagement added.');
+            }
+            saveState();
+            closeModal();
+            renderCurrentPage();
+          });
+        });
+      }
+
+      // ========================
+      // 9. REPORTS
+      // ========================
+      function renderReports(container) {
+        const m = computeMetrics();
+        const totalLeads = state.leads.length;
+        const convertedLeads = state.leads.filter(l => l.status === 'Converted').length;
+        const convRate = totalLeads > 0 ? ((convertedLeads / totalLeads) * 100).toFixed(1) : '0.0';
+
+        // Lead source breakdown
+        const sourceStats = LEAD_SOURCES.map(src => {
+          const all = state.leads.filter(l => l.source === src);
+          const conv = all.filter(l => l.status === 'Converted').length;
+          return { src, count: all.length, conv };
+        }).filter(x => x.count > 0);
+
+        // Employee performance
+        const empStats = state.settings.employees.map(emp => {
+          const empLeads = state.leads.filter(l => l.assignedTo === emp);
+          const empConv = empLeads.filter(l => l.status === 'Converted').length;
+          const empCustIds = new Set(state.customers.filter(c => c.assignedTo === emp).map(c => c.id));
+          const empRev = state.sales.filter(s => empCustIds.has(s.customerId) && (s.status === 'Paid' || s.status === 'Partially Paid')).reduce((a, b) => a + (Number(b.amount) || 0), 0);
+          return { emp, leads: empLeads.length, conv: empConv, rev: empRev };
+        });
+
+        container.innerHTML = `
+          <div class="space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+                <div class="text-xs font-medium text-slate-500 uppercase">Total Revenue</div>
+                <div class="text-2xl font-bold text-slate-900 mt-1">${formatMoney(m.totalRevenue)}</div>
+              </div>
+              <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+                <div class="text-xs font-medium text-slate-500 uppercase">Lead Conversion Rate</div>
+                <div class="text-2xl font-bold text-slate-900 mt-1">${convRate}%</div>
+                <div class="text-xs text-slate-500 mt-0.5">${convertedLeads} of ${totalLeads} leads</div>
+              </div>
+              <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+                <div class="text-xs font-medium text-slate-500 uppercase">Pending Payments</div>
+                <div class="text-2xl font-bold text-amber-600 mt-1">${formatMoney(m.pendingPaymentsAmount)}</div>
+                <div class="text-xs text-slate-500 mt-0.5">${m.pendingPaymentsCount} pending record(s)</div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+                <h2 class="text-sm font-semibold text-slate-900 mb-3">Lead Source Performance</h2>
+                ${sourceStats.length === 0
+                  ? emptyStateHTML('pie-chart', 'No lead data yet', 'Add leads to compare Instagram, WhatsApp, Website, and other sources.')
+                  : '<div class="relative h-72"><canvas id="rep-chart-sources"></canvas></div>'
+                }
+              </div>
+
+              <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+                <h2 class="text-sm font-semibold text-slate-900 mb-3">Employee Performance</h2>
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                      <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase">
+                        <th class="px-3 py-2.5">Employee</th>
+                        <th class="px-3 py-2.5">Leads</th>
+                        <th class="px-3 py-2.5">Conversions</th>
+                        <th class="px-3 py-2.5 text-right">Revenue</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                      ${empStats.map(e => `
+                        <tr>
+                          <td class="px-3 py-2.5 font-medium text-slate-800">${esc(e.emp)}</td>
+                          <td class="px-3 py-2.5 text-slate-600">${e.leads}</td>
+                          <td class="px-3 py-2.5 text-slate-600">${e.conv}</td>
+                          <td class="px-3 py-2.5 text-right font-semibold text-slate-900">${formatMoney(e.rev)}</td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        if (sourceStats.length > 0 && window.Chart) {
+          const ctx = document.getElementById('rep-chart-sources');
+          if (ctx) {
+            activeCharts.push(new Chart(ctx, {
+              type: 'doughnut',
+              data: {
+                labels: sourceStats.map(s => s.src),
+                datasets: [{
+                  data: sourceStats.map(s => s.count),
+                  backgroundColor: ['#2563eb', '#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#64748b']
+                }]
+              },
+              options: { responsive: true, maintainAspectRatio: false }
+            }));
+          }
+        }
+      }
+
+      // ========================
+      // 10. SETTINGS
+      // ========================
+      function renderSettings(container) {
+        container.innerHTML = `
+          <div class="max-w-3xl space-y-6">
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+              <h2 class="text-base font-semibold text-slate-900 mb-4">Company &amp; Preferences</h2>
+              <form id="settings-form" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-medium text-slate-700 mb-1">Company Name</label>
+                    <input name="companyName" value="${esc(state.settings.companyName)}" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-slate-700 mb-1">Currency Symbol</label>
+                    <select name="currency" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white">
+                      <option value="₹" ${state.settings.currency === '₹' ? 'selected' : ''}>₹ (INR)</option>
+                      <option value="$" ${state.settings.currency === '$' ? 'selected' : ''}>$ (USD)</option>
+                    </select>
+                  </div>
+                </div>
+                <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Save Preferences</button>
+              </form>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+              <h2 class="text-base font-semibold text-slate-900 mb-2">Sales Team &amp; Employees</h2>
+              <p class="text-xs text-slate-500 mb-4">Employees listed here appear in Lead, Customer, and Task assignment dropdowns.</p>
+              <form id="add-emp-form" class="flex gap-2 mb-4">
+                <input id="new-emp-input" type="text" placeholder="Enter employee name..." class="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg" />
+                <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Add</button>
+              </form>
+              <div class="flex flex-wrap gap-2">
+                ${state.settings.employees.map(emp => `
+                  <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 text-slate-800 text-xs font-medium">
+                    ${esc(emp)}
+                    <button type="button" data-rm-emp="${esc(emp)}" class="text-slate-400 hover:text-red-600">&times;</button>
+                  </span>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="bg-white rounded-xl border border-red-200 p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 class="text-base font-semibold text-red-700">Reset Application Data</h2>
+                <p class="text-xs text-slate-500 mt-0.5">Clear all customers, leads, sales, and tasks back to zero.</p>
+              </div>
+              <button id="reset-all-btn" type="button" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700">Reset All Data</button>
+            </div>
+          </div>
+        `;
+
+        document.getElementById('settings-form').addEventListener('submit', e => {
+          e.preventDefault();
+          const fd = new FormData(e.target);
+          state.settings.companyName = fd.get('companyName').trim() || 'Azisly.ai';
+          state.settings.currency = fd.get('currency');
+          saveState();
+          showToast('Settings saved.');
+          renderSidebar();
+          renderCurrentPage();
+        });
+
+        document.getElementById('add-emp-form').addEventListener('submit', e => {
+          e.preventDefault();
+          const inp = document.getElementById('new-emp-input');
+          const name = inp.value.trim();
+          if (!name) return;
+          if (!state.settings.employees.includes(name)) {
+            state.settings.employees.push(name);
+            saveState();
+            showToast(`Added ${name}.`);
+            renderCurrentPage();
+          }
+        });
+
+        container.querySelectorAll('[data-rm-emp]').forEach(b => b.addEventListener('click', () => {
+          const name = b.getAttribute('data-rm-emp');
+          state.settings.employees = state.settings.employees.filter(x => x !== name);
+          saveState();
+          showToast(`Removed ${name}.`);
+          renderCurrentPage();
+        }));
+
+        document.getElementById('reset-all-btn').addEventListener('click', () => {
+          openConfirm('Reset All Data', 'This will erase all saved customers, leads, sales, and tasks. Continue?', 'Reset Everything', () => {
+            state = getDefaultState();
+            saveState();
+            showToast('All CRM data has been reset.');
+            renderSidebar();
+            renderCurrentPage();
+          });
+        });
+      }
+
+      // Main Render Router
+      function renderCurrentPage() {
+        destroyCharts();
+        const container = document.getElementById('main-content');
+        container.innerHTML = '';
+        if (currentPage === 'dashboard') renderDashboard(container);
+        else if (currentPage === 'customers') renderCustomers(container);
+        else if (currentPage === 'leads') renderLeads(container);
+        else if (currentPage === 'products') renderProducts(container);
+        else if (currentPage === 'tasks') renderTasks(container);
+        else if (currentPage === 'calendar') renderCalendar(container);
+        else if (currentPage === 'sales') renderSales(container);
+        else if (currentPage === 'engagement') renderEngagement(container);
+        else if (currentPage === 'reports') renderReports(container);
+        else if (currentPage === 'settings') renderSettings(container);
+        if (window.lucide) lucide.createIcons({ nodes: [container] });
+      }
+
+      // Global Wireup
+      window.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('open-sidebar-btn').addEventListener('click', openMobileSidebar);
+        document.getElementById('close-sidebar-btn').addEventListener('click', closeMobileSidebar);
+        document.getElementById('sidebar-backdrop').addEventListener('click', closeMobileSidebar);
+        document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+        document.getElementById('modal-overlay').addEventListener('click', e => { if (e.target.id === 'modal-overlay') closeModal(); });
+        document.getElementById('confirm-cancel-btn').addEventListener('click', closeConfirm);
+        document.getElementById('confirm-ok-btn').addEventListener('click', () => {
+          const cb = confirmCallback;
+          closeConfirm();
+          if (typeof cb === 'function') cb();
+        });
+        document.getElementById('quick-add-lead-btn').addEventListener('click', () => openLeadModal());
+        document.getElementById('quick-add-sale-btn').addEventListener('click', () => openSaleModal());
+
+        renderSidebar();
+        renderCurrentPage();
+        if (window.lucide) lucide.createIcons();
+      });
+    })();
+  </script>
+</body>
+</html>
